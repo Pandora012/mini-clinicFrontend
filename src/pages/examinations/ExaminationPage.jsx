@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Form, Button, Row, Col, Table, Modal } from 'react-bootstrap';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import { examinationService } from '../../services/examination.service';
-import { registrationService } from '../../services/registration.service';
-import { toast } from 'react-toastify';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Card, Form, Button, Row, Col, Table, Modal } from "react-bootstrap";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { examinationService } from "../../services/examination.service";
+import { registrationService } from "../../services/registration.service";
+import { toast } from "react-toastify";
 
 const ExaminationPage = () => {
   const { id } = useParams();
@@ -12,17 +12,17 @@ const ExaminationPage = () => {
   const [registration, setRegistration] = useState(null);
   const [examination, setExamination] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [medicalActions, setMedicalActions] = useState([{ action_name: '', notes: '' }]);
-  const [prescriptions, setPrescriptions] = useState([{ medicine_name: '', dosage: '', instruction: '' }]);
+  const [medicalActions, setMedicalActions] = useState([{ action_name: "", notes: "" }]);
+  const [prescriptions, setPrescriptions] = useState([{ medicine_name: "", dosage: "", instruction: "" }]);
   const [formData, setFormData] = useState({
     registration_id: id,
-    complaint: '',
-    blood_pressure: '',
-    body_temperature: '',
-    body_weight: '',
-    body_height: '',
-    diagnosis: '',
-    therapy_plan: ''
+    complaint: "",
+    blood_pressure: "",
+    body_temperature: "",
+    body_weight: "",
+    body_height: "",
+    diagnosis: "",
+    therapy_plan: "",
   });
 
   useEffect(() => {
@@ -35,37 +35,41 @@ const ExaminationPage = () => {
   const fetchRegistration = async () => {
     try {
       const response = await registrationService.getById(id);
-      setRegistration(response.data);
-      setFormData(prev => ({ ...prev, registration_id: id }));
+      setRegistration(response.data.data);
+      setFormData((prev) => ({ ...prev, registration_id: id }));
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to fetch registration');
+      toast.error(error.response?.data?.message || "Failed to fetch registration");
     }
   };
 
   const fetchExamination = async () => {
     try {
       const response = await examinationService.getByRegistrationId(id);
-      if (response.data) {
-        setExamination(response.data);
+
+      if (response.data.success) {
+        setExamination(response.data.data);
+
         setFormData({
           registration_id: id,
-          complaint: response.data.complaint || '',
-          blood_pressure: response.data.blood_pressure || '',
-          body_temperature: response.data.body_temperature || '',
-          body_weight: response.data.body_weight || '',
-          body_height: response.data.body_height || '',
-          diagnosis: response.data.diagnosis || '',
-          therapy_plan: response.data.therapy_plan || ''
+          complaint: response.data.data.complaint || "",
+          blood_pressure: response.data.data.blood_pressure || "",
+          body_temperature: response.data.data.body_temperature || "",
+          body_weight: response.data.data.body_weight || "",
+          body_height: response.data.data.body_height || "",
+          diagnosis: response.data.data.diagnosis || "",
+          therapy_plan: response.data.data.therapy_plan || "",
         });
-        if (response.data.medical_actions?.length) {
-          setMedicalActions(response.data.medical_actions);
+
+        if (response.data.data.medical_actions?.length) {
+          setMedicalActions(response.data.data.medical_actions);
         }
-        if (response.data.prescriptions?.length) {
-          setPrescriptions(response.data.prescriptions);
+
+        if (response.data.data.prescriptions?.length) {
+          setPrescriptions(response.data.data.prescriptions);
         }
       }
     } catch (error) {
-      console.error('No examination found yet');
+      console.error("No examination found yet");
     } finally {
       setLoading(false);
     }
@@ -73,39 +77,51 @@ const ExaminationPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
+      let exam;
+
       if (examination) {
         await examinationService.update(examination.id, formData);
-        toast.success('Examination updated successfully');
+        exam = examination;
+        toast.success("Examination updated successfully");
       } else {
         const response = await examinationService.create(formData);
-        setExamination(response.data);
-        toast.success('Examination created successfully');
+
+        exam = response.data.data; // ambil examination yang baru dibuat
+
+        setExamination(exam);
+
+        toast.success("Examination created successfully");
       }
-      await saveMedicalActions();
-      await savePrescriptions();
+
+      await saveMedicalActions(exam.id);
+      await savePrescriptions(exam.id);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to save examination');
+      toast.error(error.response?.data?.message || "Failed to save examination");
     }
   };
 
-  const saveMedicalActions = async () => {
+  const saveMedicalActions = async (examId) => {
     for (const action of medicalActions) {
       if (action.action_name) {
         await examinationService.addMedicalAction({
-          examination_id: examination?.id,
-          ...action
+          examination_id: examId,
+          action_name: action.action_name,
+          notes: action.notes,
         });
       }
     }
   };
 
-  const savePrescriptions = async () => {
+  const savePrescriptions = async (examId) => {
     for (const rx of prescriptions) {
       if (rx.medicine_name) {
         await examinationService.addPrescription({
-          examination_id: examination?.id,
-          ...rx
+          examination_id: examId,
+          medicine_name: rx.medicine_name,
+          dosage: rx.dosage,
+          instruction: rx.instruction,
         });
       }
     }
@@ -114,10 +130,10 @@ const ExaminationPage = () => {
   const handleComplete = async () => {
     try {
       await examinationService.complete(examination?.id);
-      toast.success('Examination completed successfully');
-      navigate('/queue');
+      toast.success("Examination completed successfully");
+      navigate("/queue");
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to complete examination');
+      toast.error(error.response?.data?.message || "Failed to complete examination");
     }
   };
 
@@ -144,12 +160,7 @@ const ExaminationPage = () => {
           <Card.Body>
             <Form.Group>
               <Form.Label>Keluhan</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={formData.complaint}
-                onChange={(e) => setFormData({ ...formData, complaint: e.target.value })}
-              />
+              <Form.Control as="textarea" rows={3} value={formData.complaint} onChange={(e) => setFormData({ ...formData, complaint: e.target.value })} />
             </Form.Group>
           </Card.Body>
         </Card>
@@ -163,44 +174,25 @@ const ExaminationPage = () => {
               <Col md={3}>
                 <Form.Group className="mb-3">
                   <Form.Label>Tekanan Darah</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="120/80"
-                    value={formData.blood_pressure}
-                    onChange={(e) => setFormData({ ...formData, blood_pressure: e.target.value })}
-                  />
+                  <Form.Control type="text" placeholder="120/80" value={formData.blood_pressure} onChange={(e) => setFormData({ ...formData, blood_pressure: e.target.value })} />
                 </Form.Group>
               </Col>
               <Col md={3}>
                 <Form.Group className="mb-3">
                   <Form.Label>Suhu (°C)</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="36.5"
-                    value={formData.body_temperature}
-                    onChange={(e) => setFormData({ ...formData, body_temperature: e.target.value })}
-                  />
+                  <Form.Control type="text" placeholder="36.5" value={formData.body_temperature} onChange={(e) => setFormData({ ...formData, body_temperature: e.target.value })} />
                 </Form.Group>
               </Col>
               <Col md={3}>
                 <Form.Group className="mb-3">
                   <Form.Label>Berat (kg)</Form.Label>
-                  <Form.Control
-                    type="number"
-                    step="0.1"
-                    value={formData.body_weight}
-                    onChange={(e) => setFormData({ ...formData, body_weight: e.target.value })}
-                  />
+                  <Form.Control type="number" step="0.1" value={formData.body_weight} onChange={(e) => setFormData({ ...formData, body_weight: e.target.value })} />
                 </Form.Group>
               </Col>
               <Col md={3}>
                 <Form.Group className="mb-3">
                   <Form.Label>Tinggi (cm)</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={formData.body_height}
-                    onChange={(e) => setFormData({ ...formData, body_height: e.target.value })}
-                  />
+                  <Form.Control type="number" value={formData.body_height} onChange={(e) => setFormData({ ...formData, body_height: e.target.value })} />
                 </Form.Group>
               </Col>
             </Row>
@@ -214,12 +206,7 @@ const ExaminationPage = () => {
           <Card.Body>
             <Form.Group>
               <Form.Label>Diagnosa</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={formData.diagnosis}
-                onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })}
-              />
+              <Form.Control as="textarea" rows={3} value={formData.diagnosis} onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })} />
             </Form.Group>
           </Card.Body>
         </Card>
@@ -231,12 +218,7 @@ const ExaminationPage = () => {
           <Card.Body>
             <Form.Group className="mb-3">
               <Form.Label>Rencana Terapi</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={formData.therapy_plan}
-                onChange={(e) => setFormData({ ...formData, therapy_plan: e.target.value })}
-              />
+              <Form.Control as="textarea" rows={3} value={formData.therapy_plan} onChange={(e) => setFormData({ ...formData, therapy_plan: e.target.value })} />
             </Form.Group>
           </Card.Body>
         </Card>
@@ -245,7 +227,7 @@ const ExaminationPage = () => {
           <Card.Header>
             <div className="d-flex justify-content-between align-items-center">
               <h5 className="mb-0">Tindakan Medis</h5>
-              <Button size="sm" variant="outline-primary" onClick={() => setMedicalActions([...medicalActions, { action_name: '', notes: '' }])}>
+              <Button size="sm" variant="outline-primary" onClick={() => setMedicalActions([...medicalActions, { action_name: "", notes: "" }])}>
                 <i className="bi bi-plus"></i> Tambah
               </Button>
             </div>
@@ -289,7 +271,7 @@ const ExaminationPage = () => {
           <Card.Header>
             <div className="d-flex justify-content-between align-items-center">
               <h5 className="mb-0">Resep Obat</h5>
-              <Button size="sm" variant="outline-primary" onClick={() => setPrescriptions([...prescriptions, { medicine_name: '', dosage: '', instruction: '' }])}>
+              <Button size="sm" variant="outline-primary" onClick={() => setPrescriptions([...prescriptions, { medicine_name: "", dosage: "", instruction: "" }])}>
                 <i className="bi bi-plus"></i> Tambah
               </Button>
             </div>

@@ -45,9 +45,12 @@ const QueuePage = () => {
   const handleNextQueue = async () => {
     try {
       const response = await queueService.getNextQueue();
-      if (response.data) {
-        await handleStatusUpdate(response.data.id, "Check In");
-        toast.success(`Calling ${response.data.queue_number}`);
+
+      const queue = response.data.data;
+
+      if (queue) {
+        await handleStatusUpdate(queue.id, "Check In");
+        toast.success(`Calling ${queue.queue_number}`);
       } else {
         toast.info("No more queues");
       }

@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { Row, Col } from 'react-bootstrap';
-import StatCard from '../../components/common/StatCard';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import { dashboardService } from '../../services/dashboard.service';
-import { toast } from 'react-toastify';
+import { useEffect, useState } from "react";
+import { Row, Col } from "react-bootstrap";
+import StatCard from "../../components/common/StatCard";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { dashboardService } from "../../services/dashboard.service";
+import { toast } from "react-toastify";
 
 const DashboardPage = () => {
   const [stats, setStats] = useState(null);
@@ -16,9 +16,9 @@ const DashboardPage = () => {
   const fetchStats = async () => {
     try {
       const response = await dashboardService.getStats();
-      setStats(response.data);
+      setStats(response.data.data);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to fetch dashboard stats');
+      toast.error(error.response?.data?.message || "Failed to fetch dashboard stats");
     } finally {
       setLoading(false);
     }
@@ -34,63 +34,28 @@ const DashboardPage = () => {
 
       <Row className="g-4 mb-4">
         <Col md={6} xl={3}>
-          <StatCard
-            title="Total Pasien"
-            value={stats?.totalPatients || 0}
-            icon="bi-people"
-            color="primary"
-          />
+          <StatCard title="Total Pasien" value={stats?.totalPatients || 0} icon="bi-people" color="primary" />
         </Col>
         <Col md={6} xl={3}>
-          <StatCard
-            title="Pasien Hari Ini"
-            value={stats?.patientsToday || 0}
-            icon="bi-person-plus"
-            color="success"
-          />
+          <StatCard title="Pasien Hari Ini" value={stats?.patientsToday || 0} icon="bi-person-plus" color="success" />
         </Col>
         <Col md={6} xl={3}>
-          <StatCard
-            title="Antrean Hari Ini"
-            value={stats?.totalQueuesToday || 0}
-            icon="bi-list-ol"
-            color="warning"
-          />
+          <StatCard title="Antrean Hari Ini" value={stats?.totalQueuesToday || 0} icon="bi-list-ol" color="warning" />
         </Col>
         <Col md={6} xl={3}>
-          <StatCard
-            title="Pasien Selesai"
-            value={stats?.completedPatients || 0}
-            icon="bi-check-circle"
-            color="info"
-          />
+          <StatCard title="Pasien Selesai" value={stats?.completedPatients || 0} icon="bi-check-circle" color="info" />
         </Col>
       </Row>
 
       <Row className="g-4">
         <Col md={6} xl={3}>
-          <StatCard
-            title="Menunggu"
-            value={stats?.waitingPatients || 0}
-            icon="bi-clock"
-            color="secondary"
-          />
+          <StatCard title="Menunggu" value={stats?.waitingPatients || 0} icon="bi-clock" color="secondary" />
         </Col>
         <Col md={6} xl={3}>
-          <StatCard
-            title="Total Dokter"
-            value={stats?.totalDoctors || 0}
-            icon="bi-person-badge"
-            color="primary"
-          />
+          <StatCard title="Total Dokter" value={stats?.totalDoctors || 0} icon="bi-person-badge" color="primary" />
         </Col>
         <Col md={6} xl={3}>
-          <StatCard
-            title="Total Poli"
-            value={stats?.totalClinics || 0}
-            icon="bi-building"
-            color="info"
-          />
+          <StatCard title="Total Poli" value={stats?.totalClinics || 0} icon="bi-building" color="info" />
         </Col>
       </Row>
     </div>
