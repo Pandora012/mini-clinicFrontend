@@ -1,0 +1,55 @@
+.service-directory { container-type: inline-size; color: var(--clinic-ink); }
+.directory-banner {
+  position: relative; isolation: isolate; overflow: hidden; display: flex; align-items: center;
+  justify-content: space-between; gap: 20px; padding: clamp(24px, 3vw, 42px); border-radius: 18px;
+  background: linear-gradient(108deg, #322d68, #514588); color: white;
+}
+.directory-banner::before, .directory-banner::after {
+  content: ''; position: absolute; z-index: -1; width: 260px; aspect-ratio: 1; top: -140px;
+  right: 12%; border: 1px solid #ffffff22; border-radius: 44px; transform: rotate(32deg); pointer-events: none;
+}
+.directory-banner::after { right: calc(12% + 18px); top: -116px; }
+.directory-kicker { display: inline-flex; gap: 8px; align-items: center; font-size: 11px; letter-spacing: .11em; text-transform: uppercase; font-weight: 650; color: #ded8ff; }
+.directory-banner h1 { margin: 13px 0 6px; color: white; font-size: clamp(28px, 3vw, 40px); font-weight: 650; }
+.directory-banner p { margin: 0; color: #e2dff2; }
+.directory-banner .btn { color: #3d367a; flex-shrink: 0; }
+.directory-toolbar { display: flex; gap: 16px; justify-content: space-between; align-items: center; margin: 30px 0 18px; }
+.directory-toolbar h2 { display: flex; align-items: center; gap: 9px; font-size: 20px; margin: 0; }
+.directory-toolbar small { font-size: 13px; padding: 4px 9px; border-radius: 20px; color: #594a98; background: #eae6fa; }
+.directory-search { position: relative; width: min(310px, 100%); }
+.directory-search i { position: absolute; top: 50%; left: 13px; transform: translateY(-50%); color: #736b90; pointer-events: none; }
+.directory-search input { padding-left: 38px; }
+.directory-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.directory-card {
+  --paper: #efeafb; --ink: #5d448f;
+  overflow: hidden; display: flex; flex-direction: column; min-width: 0; border-radius: 15px;
+  border: 1px solid var(--clinic-line); background: white; box-shadow: 0 3px 14px #342d6008;
+}
+.directory-card:nth-child(3n + 2) { --paper: #e9effb; --ink: #3d558a; }
+.directory-card:nth-child(3n) { --paper: #faeaf0; --ink: #894a68; }
+.doctor-id-strip {
+  display: flex; align-items: center; gap: 7px; padding: 10px 20px; color: var(--ink); background: var(--paper);
+  font-size: 10px; letter-spacing: .13em; font-weight: 700;
+}
+.doctor-id-strip i { font-size: 16px; }
+.doctor-id-strip span { margin-left: auto; width: 43px; height: 11px; opacity: .33; background: repeating-linear-gradient(100deg,currentColor 0 2px,transparent 2px 5px); }
+.directory-card-body { flex: 1; padding: 22px; overflow-wrap: anywhere; }
+.doctor-monogram { display: inline-grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; color: var(--ink); background: var(--paper); font-size: 21px; font-weight: 650; }
+.directory-card h3 { margin: 14px 0 5px; font-size: 20px; }
+.doctor-specialty { color: #66667c; font-size: 14px; }
+.doctor-specialty i { color: var(--ink); margin-right: 7px; }
+.directory-card footer { display: flex; justify-content: space-between; gap: 8px; border-top: 1px solid #edeaf3; padding: 5px 12px; }
+.directory-card button { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; border: 0; border-radius: 8px; background: transparent; color: #554493; padding: 6px 10px; font-weight: 600; font-size: 13px; }
+.directory-card button:hover { background: #f1eefb; }
+.directory-card .directory-remove { color: #924456; }
+.directory-card .directory-remove:hover { background: #fceef0; }
+.directory-empty { background: white; border: 1px dashed #cbc5df; border-radius: 15px; padding: 44px 20px; text-align: center; }
+.directory-empty > i { color: var(--clinic-indigo); font-size: 32px; }
+.directory-empty h3 { font-size: 19px; margin: 12px 0 6px; }
+.directory-empty p { color: #656579; }
+@container (max-width: 870px) { .directory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container (max-width: 560px) {
+  .directory-grid { grid-template-columns: 1fr; }
+  .directory-toolbar, .directory-banner { align-items: flex-start; flex-direction: column; }
+  .directory-search { width: 100%; }
+}

@@ -1,48 +1,28 @@
 import Navbar from 'react-bootstrap/Navbar';
 import Container from 'react-bootstrap/Container';
-import Badge from 'react-bootstrap/Badge';
-import { useAuth } from '../../contexts/AuthContext';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/useAuth';
 
 const AppNavbar = ({ toggleSidebar }) => {
   const { user, logout } = useAuth();
-
   return (
-    <Navbar bg="white" className="border-bottom px-3 sticky-top" style={{ zIndex: 1030 }}>
+    <Navbar bg="white" className="clinic-navbar border-bottom sticky-top">
       <Container fluid>
         <div className="d-flex align-items-center">
-          <button className="btn btn-link text-dark me-3 d-lg-none" onClick={toggleSidebar}>
-            <i className="bi bi-list fs-4"></i>
-          </button>
-          <Navbar.Brand href="/dashboard" className="fw-bold text-primary">
-            <i className="bi bi-hospital me-2"></i>
-            Mini Clinic
-          </Navbar.Brand>
+          <button className="btn btn-light me-2 d-lg-none" onClick={toggleSidebar} aria-label="Buka menu navigasi"><i className="bi bi-list fs-4" /></button>
+          <Navbar.Brand as={Link} to="/dashboard" className="fw-bold text-primary m-0"><span className="brand-mark"><i className="bi bi-heart-pulse" /></span>Mini Clinic</Navbar.Brand>
+          <span className="navbar-caption">Sistem informasi klinik</span>
         </div>
-
-        <div className="d-flex align-items-center">
-          <div className="dropdown">
-            <button
-              className="btn btn-light dropdown-toggle d-flex align-items-center gap-2"
-              type="button"
-              data-bs-toggle="dropdown"
-            >
-              <i className="bi bi-person-circle"></i>
-              <span className="d-none d-md-inline">{user?.name || 'User'}</span>
-              <Badge bg="primary" className="ms-1">{user?.role || 'Staff'}</Badge>
-            </button>
-            <ul className="dropdown-menu dropdown-menu-end">
-              <li>
-                <button className="dropdown-item" onClick={logout}>
-                  <i className="bi bi-box-arrow-right me-2"></i>
-                  Logout
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
+        <Dropdown align="end">
+          <Dropdown.Toggle variant="light" className="d-flex align-items-center gap-2">
+            <span className="user-avatar">{(user?.name || 'U').charAt(0).toUpperCase()}</span>
+            <span className="d-none d-md-block text-start"><strong className="d-block small">{user?.name || 'Pengguna'}</strong><small className="text-muted">{user?.role || 'Staf'}</small></span>
+          </Dropdown.Toggle>
+          <Dropdown.Menu><Dropdown.Item onClick={logout}><i className="bi bi-box-arrow-right me-2" />Keluar</Dropdown.Item></Dropdown.Menu>
+        </Dropdown>
       </Container>
     </Navbar>
   );
 };
-
 export default AppNavbar;

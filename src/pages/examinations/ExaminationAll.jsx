@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Card, Table, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+
 import LoadingSpinner from "../../components/common/LoadingSpinner";
+import ErrorState from "../../components/common/ErrorState";
 import EmptyState from "../../components/common/EmptyState";
 import StatusBadge from "../../components/common/StatusBadge";
 import { queueService } from "../../services/queue.service";
@@ -12,6 +13,7 @@ const ExaminationAll = () => {
 
   const [loading, setLoading] = useState(true);
   const [queues, setQueues] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -21,12 +23,13 @@ const ExaminationAll = () => {
     try {
       const response = await queueService.getTodayQueues();
 
+      setError("");
       // Hanya tampilkan pasien yang sedang pemeriksaan
-      const data = response.data.data.filter((item) => item.status === "Pemeriksaan");
+      const data = response.data.data.filter((item) => ["Check In", "Pemeriksaan"].includes(item.status));
 
-      setQueues(response.data.data);
+      setQueues(data);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Gagal mengambil data");
+      setError(error.response?.data?.message || "Gagal mengambil data pemeriksaan.");
     } finally {
       setLoading(false);
     }
@@ -40,7 +43,7 @@ const ExaminationAll = () => {
 
       <Card>
         <Card.Body>
-          {queues.length === 0 ? (
+          {error ? <ErrorState message={error} onRetry={fetchData} /> : queues.length === 0 ? (
             <EmptyState message="Belum ada pasien yang sedang diperiksa" icon="bi-clipboard-pulse" />
           ) : (
             <Table responsive hover>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, Form, Button, Row, Col, Table, Modal } from "react-bootstrap";
+import { Card, Form, Button, Row, Col } from "react-bootstrap";
+import ErrorState from "../../components/common/ErrorState";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { examinationService } from "../../services/examination.service";
 import { registrationService } from "../../services/registration.service";
@@ -25,124 +26,63 @@ const ExaminationPage = () => {
     therapy_plan: "",
   });
 
+  const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState('');
   useEffect(() => {
-    if (id) {
-      fetchRegistration();
-      fetchExamination();
-    }
+    let active = true;
+    setLoading(true); setLoadError('');
+    Promise.all([registrationService.getById(id), examinationService.getByRegistrationId(id)])
+      .then(([visit, response]) => {
+        if (!active) return;
+        const record = response.data.data;
+        setRegistration(visit.data.data);
+        setExamination(record);
+        setFormData({ registration_id: id, complaint: record?.complaint || visit.data.data.initial_complaint || '', blood_pressure: record?.blood_pressure || '', body_temperature: record?.body_temperature || '', body_weight: record?.body_weight || '', body_height: record?.body_height || '', diagnosis: record?.diagnosis || '', therapy_plan: record?.therapy_plan || '' });
+        setMedicalActions((record?.medical_actions || []).map(action => ({ ...action, notes: action.notes || '' })));
+        setPrescriptions(record?.prescriptions || []);
+      }).catch(error => { if (active) setLoadError(error.response?.data?.message || 'Data pemeriksaan gagal dimuat.'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [id]);
 
-  const fetchRegistration = async () => {
-    try {
-      const response = await registrationService.getById(id);
-      setRegistration(response.data.data);
-      setFormData((prev) => ({ ...prev, registration_id: id }));
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to fetch registration");
-    }
+  const persist = async () => {
+    const payload = { ...formData,
+      medical_actions: medicalActions.filter(action => action.action_name.trim()),
+      prescriptions: prescriptions.filter(rx => rx.medicine_name.trim()),
+    };
+    const response = examination ? await examinationService.update(examination.id, payload) : await examinationService.create(payload);
+    setExamination(response.data.data);
+    return response.data.data;
   };
-
-  const fetchExamination = async () => {
-    try {
-      const response = await examinationService.getByRegistrationId(id);
-
-      if (response.data.success) {
-        setExamination(response.data.data);
-
-        setFormData({
-          registration_id: id,
-          complaint: response.data.data.complaint || "",
-          blood_pressure: response.data.data.blood_pressure || "",
-          body_temperature: response.data.data.body_temperature || "",
-          body_weight: response.data.data.body_weight || "",
-          body_height: response.data.data.body_height || "",
-          diagnosis: response.data.data.diagnosis || "",
-          therapy_plan: response.data.data.therapy_plan || "",
-        });
-
-        if (response.data.data.medical_actions?.length) {
-          setMedicalActions(response.data.data.medical_actions);
-        }
-
-        if (response.data.data.prescriptions?.length) {
-          setPrescriptions(response.data.data.prescriptions);
-        }
-      }
-    } catch (error) {
-      console.error("No examination found yet");
-    } finally {
-      setLoading(false);
-    }
+  const handleSubmit = async event => {
+    event.preventDefault();
+    if (saving) return;
+    setSaving(true);
+    try { await persist(); toast.success('Pemeriksaan berhasil disimpan.'); }
+    catch (error) { toast.error(error.response?.data?.message || 'Pemeriksaan gagal disimpan.'); }
+    finally { setSaving(false); }
   };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      let exam;
-
-      if (examination) {
-        await examinationService.update(examination.id, formData);
-        exam = examination;
-        toast.success("Examination updated successfully");
-      } else {
-        const response = await examinationService.create(formData);
-
-        exam = response.data.data; // ambil examination yang baru dibuat
-
-        setExamination(exam);
-
-        toast.success("Examination created successfully");
-      }
-
-      await saveMedicalActions(exam.id);
-      await savePrescriptions(exam.id);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to save examination");
-    }
-  };
-
-  const saveMedicalActions = async (examId) => {
-    for (const action of medicalActions) {
-      if (action.action_name) {
-        await examinationService.addMedicalAction({
-          examination_id: examId,
-          action_name: action.action_name,
-          notes: action.notes,
-        });
-      }
-    }
-  };
-
-  const savePrescriptions = async (examId) => {
-    for (const rx of prescriptions) {
-      if (rx.medicine_name) {
-        await examinationService.addPrescription({
-          examination_id: examId,
-          medicine_name: rx.medicine_name,
-          dosage: rx.dosage,
-          instruction: rx.instruction,
-        });
-      }
-    }
-  };
-
   const handleComplete = async () => {
+    if (saving) return;
+    if (!formData.diagnosis.trim()) { toast.error('Lengkapi diagnosis sebelum menyelesaikan pemeriksaan.'); return; }
+    setSaving(true);
     try {
-      await examinationService.complete(examination?.id);
-      toast.success("Examination completed successfully");
-      navigate("/queue");
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to complete examination");
-    }
+      const exam = await persist();
+      await examinationService.complete(exam.id);
+      toast.success('Pemeriksaan selesai.');
+      navigate('/examinations');
+    } catch (error) { toast.error(error.response?.data?.message || 'Pemeriksaan belum dapat diselesaikan.'); }
+    finally { setSaving(false); }
   };
-
   if (loading) {
     return <LoadingSpinner />;
   }
 
+  if (loadError) return <ErrorState message={loadError} />;
+  if (!registration) return <ErrorState message="Pendaftaran tidak ditemukan." />;
+  if (!["Check In", "Pemeriksaan"].includes(registration.status)) return <ErrorState message="Pemeriksaan hanya tersedia untuk pasien yang sudah check in dan belum selesai." />;
   return (
-    <div>
+    <div className="examination-page">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Pemeriksaan Dokter</h2>
         {registration && (
@@ -152,13 +92,13 @@ const ExaminationPage = () => {
         )}
       </div>
 
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit}><fieldset disabled={saving}>
         <Card className="mb-4">
-          <Card.Header className="bg-info text-white">
-            <h5 className="mb-0">Subjective</h5>
+          <Card.Header className="exam-section-header">
+            <h5 className="mb-0">Keluhan pasien</h5>
           </Card.Header>
           <Card.Body>
-            <Form.Group>
+            <Form.Group controlId="exam-complaint">
               <Form.Label>Keluhan</Form.Label>
               <Form.Control as="textarea" rows={3} value={formData.complaint} onChange={(e) => setFormData({ ...formData, complaint: e.target.value })} />
             </Form.Group>
@@ -166,31 +106,31 @@ const ExaminationPage = () => {
         </Card>
 
         <Card className="mb-4">
-          <Card.Header className="bg-success text-white">
-            <h5 className="mb-0">Objective</h5>
+          <Card.Header className="exam-section-header">
+            <h5 className="mb-0">Tanda vital</h5>
           </Card.Header>
           <Card.Body>
             <Row>
               <Col md={3}>
-                <Form.Group className="mb-3">
+                <Form.Group controlId="exam-blood-pressure" className="mb-3">
                   <Form.Label>Tekanan Darah</Form.Label>
                   <Form.Control type="text" placeholder="120/80" value={formData.blood_pressure} onChange={(e) => setFormData({ ...formData, blood_pressure: e.target.value })} />
                 </Form.Group>
               </Col>
               <Col md={3}>
-                <Form.Group className="mb-3">
+                <Form.Group controlId="exam-temperature" className="mb-3">
                   <Form.Label>Suhu (°C)</Form.Label>
                   <Form.Control type="text" placeholder="36.5" value={formData.body_temperature} onChange={(e) => setFormData({ ...formData, body_temperature: e.target.value })} />
                 </Form.Group>
               </Col>
               <Col md={3}>
-                <Form.Group className="mb-3">
+                <Form.Group controlId="exam-weight" className="mb-3">
                   <Form.Label>Berat (kg)</Form.Label>
                   <Form.Control type="number" step="0.1" value={formData.body_weight} onChange={(e) => setFormData({ ...formData, body_weight: e.target.value })} />
                 </Form.Group>
               </Col>
               <Col md={3}>
-                <Form.Group className="mb-3">
+                <Form.Group controlId="exam-height" className="mb-3">
                   <Form.Label>Tinggi (cm)</Form.Label>
                   <Form.Control type="number" value={formData.body_height} onChange={(e) => setFormData({ ...formData, body_height: e.target.value })} />
                 </Form.Group>
@@ -200,11 +140,11 @@ const ExaminationPage = () => {
         </Card>
 
         <Card className="mb-4">
-          <Card.Header className="bg-warning text-white">
-            <h5 className="mb-0">Assessment</h5>
+          <Card.Header className="exam-section-header">
+            <h5 className="mb-0">Diagnosis</h5>
           </Card.Header>
           <Card.Body>
-            <Form.Group>
+            <Form.Group controlId="exam-diagnosis">
               <Form.Label>Diagnosa</Form.Label>
               <Form.Control as="textarea" rows={3} value={formData.diagnosis} onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })} />
             </Form.Group>
@@ -212,11 +152,11 @@ const ExaminationPage = () => {
         </Card>
 
         <Card className="mb-4">
-          <Card.Header className="bg-primary text-white">
-            <h5 className="mb-0">Plan</h5>
+          <Card.Header className="exam-section-header">
+            <h5 className="mb-0">Rencana terapi</h5>
           </Card.Header>
           <Card.Body>
-            <Form.Group className="mb-3">
+            <Form.Group controlId="exam-therapy" className="mb-3">
               <Form.Label>Rencana Terapi</Form.Label>
               <Form.Control as="textarea" rows={3} value={formData.therapy_plan} onChange={(e) => setFormData({ ...formData, therapy_plan: e.target.value })} />
             </Form.Group>
@@ -237,7 +177,7 @@ const ExaminationPage = () => {
               <Row key={index} className="mb-2">
                 <Col md={6}>
                   <Form.Control
-                    placeholder="Nama tindakan"
+                    aria-label="Nama tindakan" placeholder="Nama tindakan"
                     value={action.action_name}
                     onChange={(e) => {
                       const updated = [...medicalActions];
@@ -248,7 +188,7 @@ const ExaminationPage = () => {
                 </Col>
                 <Col md={5}>
                   <Form.Control
-                    placeholder="Catatan"
+                    aria-label="Catatan tindakan" placeholder="Catatan"
                     value={action.notes}
                     onChange={(e) => {
                       const updated = [...medicalActions];
@@ -281,7 +221,7 @@ const ExaminationPage = () => {
               <Row key={index} className="mb-2">
                 <Col md={4}>
                   <Form.Control
-                    placeholder="Nama obat"
+                    aria-label="Nama obat" placeholder="Nama obat"
                     value={rx.medicine_name}
                     onChange={(e) => {
                       const updated = [...prescriptions];
@@ -292,7 +232,7 @@ const ExaminationPage = () => {
                 </Col>
                 <Col md={3}>
                   <Form.Control
-                    placeholder="Dosis"
+                    aria-label="Dosis obat" required placeholder="Dosis"
                     value={rx.dosage}
                     onChange={(e) => {
                       const updated = [...prescriptions];
@@ -325,7 +265,7 @@ const ExaminationPage = () => {
         <div className="d-flex gap-2 mb-4">
           <Button variant="primary" type="submit">
             <i className="bi bi-save me-2"></i>
-            Simpan SOAP
+            {saving ? "Menyimpan…" : "Simpan pemeriksaan"}
           </Button>
           {examination && (
             <Button variant="success" onClick={handleComplete}>
@@ -337,7 +277,7 @@ const ExaminationPage = () => {
             Kembali
           </Button>
         </div>
-      </Form>
+      </fieldset></Form>
     </div>
   );
 };

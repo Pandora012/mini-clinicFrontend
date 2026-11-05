@@ -1,0 +1,137 @@
+.queue-page {
+  container-type: inline-size;
+  --queue-indigo: #5650c6;
+  --queue-ink: #282b46;
+  --queue-muted: #70748a;
+  --queue-border: #e7e7f1;
+}
+.queue-heading { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 26px; }
+.queue-heading h2 { margin: 0 0 8px; color: var(--queue-ink); font-size: 29px; font-weight: 700; }
+.queue-heading-description { margin: 0; color: var(--queue-muted); font-size: 13px; }
+.queue-day { display: flex; align-items: center; gap: 10px; color: #646780; font-size: 12px; white-space: nowrap; }
+.queue-day > i { display: grid; place-items: center; width: 34px; height: 34px; background: #fff; border: 1px solid var(--queue-border); border-radius: 9px; color: #7b72bd; }
+.queue-overview { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: 22px; margin-bottom: 27px; }
+.next-patient { display: flex; flex-direction: column; padding: 25px 28px 20px; background: #393479; color: white; border-radius: 16px; min-width: 0; }
+.next-patient-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.next-patient-top > span:first-child { display: flex; align-items: center; gap: 9px; color: #e1defa; font-size: 13px; font-weight: 500; }
+.next-patient-top i { font-size: 18px; }
+.next-patient-count { border: 1px solid #ffffff25; background: #ffffff09; border-radius: 20px; padding: 4px 10px; font-size: 11px; white-space: nowrap; color: #e0dbff; }
+.next-patient-body { display: flex; gap: 24px; align-items: center; padding: 24px 0; flex: 1; }
+.next-patient-number { font-size: clamp(40px, 4vw, 66px); font-weight: 650; letter-spacing: -3px; line-height: 1.15; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.next-patient-number.is-empty { min-width: 76px; text-align: center; color: #b6aadf; font-weight: 400; }
+.next-patient-info { min-width: 0; border-left: 1px solid #ffffff25; padding-left: 23px; }
+.next-patient-info h3 { color: white; font-size: 17px; line-height: 1.4; font-weight: 600; margin: 0 0 7px; letter-spacing: -.3px; overflow-wrap: anywhere; }
+.next-patient-info p { font-size: 12px; color: #c9c4e6; line-height: 1.65; margin: 0; }
+.next-patient-bottom { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: 17px; border-top: 1px dashed #ffffff30; }
+.next-patient-bottom > span { display: flex; align-items: center; gap: 7px; color: #c7c2e3; font-size: 11px; }
+.next-patient-bottom .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 13px; font-size: 12px; white-space: nowrap; background: white; color: #45408c; border-color: white; }
+.next-patient-bottom .btn:disabled { background: #ffffff10; border-color: #ffffff20; color: #cbc5e6; opacity: 1; }
+.queue-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.queue-metric { display: flex; align-items: flex-start; gap: 15px; padding: 21px 22px; border: 1px solid var(--queue-border); border-radius: 13px; background: white; }
+.queue-metric-icon { display: grid; place-items: center; width: 39px; height: 39px; border-radius: 11px; flex-shrink: 0; font-size: 19px; }
+.queue-metric h3 { color: #6e728c; margin: 0 0 3px; font-size: 12px; line-height: 1.5; font-weight: 500; letter-spacing: 0; }
+.queue-metric strong { color: var(--queue-ink); font-size: 28px; line-height: 1.3; font-weight: 650; font-variant-numeric: tabular-nums; }
+.queue-metric p { color: #777b8e; font-size: 10px; margin: 3px 0 0; }
+.queue-metric.waiting .queue-metric-icon { color: #8a719d; background: #f5eff8; }
+.queue-metric.arrived .queue-metric-icon { color: #b98430; background: #fff5e5; }
+.queue-metric.examining .queue-metric-icon { color: #5955bd; background: #eeedfb; }
+.queue-metric.completed .queue-metric-icon { color: #747894; background: #f0f2f8; }
+.queue-list { background: white; border: 1px solid var(--queue-border); border-radius: 16px; overflow: hidden; }
+.queue-list-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 24px 27px 21px; }
+.queue-list-heading h3 { display: flex; align-items: center; gap: 10px; color: var(--queue-ink); font-size: 17px; font-weight: 650; margin: 0 0 5px; }
+.queue-list-heading h3 > span { padding: 3px 8px; border-radius: 6px; background: #f1effb; color: #746ab2; font-size: 11px; font-weight: 600; }
+.queue-list-heading p { color: var(--queue-muted); font-size: 12px; margin: 0; }
+.queue-list-heading .btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; border-color: #e3e3ee; color: #686c84; font-size: 11px; white-space: nowrap; }
+.queue-list-heading .btn:hover { color: #45408c; background: #f6f5fc; }
+.queue-toolbar { padding: 0 27px; border-bottom: 1px solid #ececf3; }
+.queue-filters { display: flex; gap: 24px; overflow-x: auto; scrollbar-width: thin; }
+.queue-filter { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 0 0 14px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: #73778d; white-space: nowrap; font-size: 12px; font-weight: 500; }
+.queue-filter > span { display: inline-grid; place-items: center; min-width: 19px; padding: 1px 5px; border-radius: 5px; background: #f5f5f8; color: #73778d; font-size: 10px; }
+.queue-filter:hover { color: var(--queue-indigo); }
+.queue-filter.is-selected { color: var(--queue-indigo); border-bottom-color: var(--queue-indigo); font-weight: 650; }
+.queue-filter.is-selected > span { background: #eeebfb; color: #6859b8; }
+.queue-search { display: flex; align-items: center; gap: 12px; padding: 20px 27px 8px; }
+.queue-search .input-group { max-width: 440px; }
+.queue-search .input-group-text { background: #fafafd; border-color: #e7e7f1; color: #8a8ca0; }
+.queue-search .form-control { border-left: 0; background: #fafafd; font-size: 12px; }
+.queue-search .form-select { width: 180px; min-height: 42px; font-size: 12px; margin-left: auto; }
+.queue-list-message { padding: 10px 27px; }
+.queue-empty { display: flex; flex-direction: column; align-items: center; padding: 38px 24px 44px; text-align: center; }
+.queue-empty-art { position: relative; width: 118px; height: 106px; margin: 0 0 19px; }
+.queue-empty-ticket { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; width: 70px; height: 88px; border: 1px solid #e2ddf0; border-radius: 12px; }
+.queue-empty-ticket.ticket-back { left: 18px; top: 5px; transform: rotate(-13deg); background: #f6f3fc; }
+.queue-empty-ticket.ticket-front { left: 34px; top: 9px; transform: rotate(8deg); background: #fff; box-shadow: 0 5px 14px #66569a0b; }
+.queue-empty-ticket > i { font-size: 27px; color: #8e7dc2; margin-bottom: 3px; }
+.queue-empty-ticket > span { width: 28px; height: 3px; border-radius: 2px; background: #e8e3f4; }
+.queue-empty-ticket > span:last-child { width: 18px; }
+.queue-empty-check { position: absolute; right: 0; bottom: 7px; width: 29px; height: 29px; display: grid; place-items: center; background: #eee9fa; color: #8b77be; border: 3px solid #fff; border-radius: 50%; font-size: 19px; }
+.queue-empty h4 { color: #41435c; font-size: 18px; font-weight: 600; margin: 0 0 10px; letter-spacing: -.4px; }
+.queue-empty > p { color: #74788d; max-width: 375px; font-size: 12px; line-height: 1.8; margin: 0 0 21px; }
+.queue-empty > .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; font-size: 12px; }
+.queue-table { padding: 11px 13px 0; }
+.queue-table .table { --bs-table-hover-bg: #faf9fe; }
+.queue-table .table thead th { background: #fafafd; padding-top: 13px; padding-bottom: 13px; font-size: 11px; color: #74778d; }
+.queue-table .table td { padding-top: 17px; padding-bottom: 17px; }
+.queue-table .btn { font-size: 11px; }
+.queue-row-number { display: inline-block; font-size: 16px; font-weight: 650; color: #51449e; font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
+.queue-patient-cell { display: flex; align-items: center; gap: 10px; }
+.queue-patient-avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: #f3f1fa; color: #8b7cb7; font-weight: 600; font-size: 12px; }
+.queue-patient-cell strong, .queue-doctor-name { color: #505269; font-size: 12px; font-weight: 600; }
+.queue-patient-cell small, .queue-clinic-name { display: block; color: #767a8f; font-size: 10px; margin-top: 3px; }
+.queue-payment { display: inline-block; padding: 3px 8px; font-size: 10px; border: 1px solid #e8e8f0; color: #71758a; border-radius: 5px; }
+.queue-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 20px; font-size: 10px; font-weight: 500; }
+.queue-status > span { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.queue-status.waiting { background: #f5f0f8; color: #8a6b9b; }
+.queue-status.arrived { background: #fff5e2; color: #a27728; }
+.queue-status.examining { background: #efedfc; color: #6855b1; }
+.queue-status.completed { background: #eff1f7; color: #5f6880; }
+.queue-detail-link { color: #8b85a7; font-size: 11px; }
+.queue-detail-link > i { margin-left: 6px; font-size: 9px; }
+.queue-list-footer { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 15px 27px; border-top: 1px solid #ececf3; background: #fdfdff; color: #787b8f; font-size: 10px; }
+.queue-list-footer > span:first-child { display: flex; align-items: center; gap: 6px; }
+.queue-list-footer i { font-size: 13px; color: #9a92b8; }
+.queue-refresh-spin { animation: queue-refresh 1s linear infinite; }
+@keyframes queue-refresh { to { transform: rotate(360deg); } }
+@container (max-width: 1050px) {
+  .queue-overview { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .next-patient-body { padding: 22px 0; }
+  .queue-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .queue-metric { flex-direction: column; padding: 16px; gap: 10px; }
+  .queue-metric h3 { font-size: 11px; }
+  .queue-metric p { display: none; }
+}
+@container (max-width: 660px) {
+  .queue-heading { align-items: flex-start; flex-direction: column; gap: 16px; }
+  .queue-heading h2 { font-size: 26px; }
+  .queue-day { font-size: 11px; }
+  .queue-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .queue-metric { flex-direction: row; padding: 17px; gap: 12px; }
+  .queue-metric-icon { width: 33px; height: 33px; font-size: 17px; }
+  .queue-metric strong { font-size: 25px; }
+  .next-patient { padding: 21px; }
+  .next-patient-top > span:first-child { font-size: 12px; }
+  .next-patient-body { gap: 16px; }
+  .next-patient-number { font-size: 42px; }
+  .next-patient-number.is-empty { min-width: 50px; }
+  .next-patient-info { padding-left: 17px; }
+  .next-patient-info h3 { font-size: 15px; }
+  .next-patient-info p { font-size: 11px; }
+  .next-patient-bottom { flex-direction: column; align-items: stretch; gap: 14px; }
+  .next-patient-bottom > span { justify-content: center; font-size: 10px; }
+  .next-patient-bottom .btn { padding: 11px; }
+  .queue-list-heading { padding: 20px 18px; gap: 12px; }
+  .queue-list-heading h3 { font-size: 16px; }
+  .queue-list-heading p { font-size: 11px; max-width: 180px; }
+  .queue-list-heading .btn { font-size: 10px; padding: 8px; }
+  .queue-toolbar { padding: 0 18px; }
+  .queue-filters { gap: 20px; }
+  .queue-search { flex-direction: column; align-items: stretch; padding: 18px; }
+  .queue-search .input-group { max-width: none; }
+  .queue-search .form-select { width: 100%; }
+  .queue-empty { padding: 32px 20px; }
+  .queue-empty h4 { font-size: 17px; }
+  .queue-empty > p { font-size: 11px; max-width: 280px; }
+  .queue-list-footer { flex-wrap: wrap; padding: 14px 18px; gap: 8px; font-size: 9px; }
+  .queue-list-message { padding: 0 18px; }
+}
+@media (prefers-reduced-motion: reduce) { .queue-refresh-spin { animation: none; } }

@@ -4,7 +4,7 @@ import Col from 'react-bootstrap/Col';
 
 const StatCard = ({ title, value, icon, color = 'primary' }) => {
   return (
-    <Card className="border-0 shadow-sm h-100">
+    <Card className="stat-card h-100">
       <Card.Body>
         <Row className="align-items-center">
           <Col>

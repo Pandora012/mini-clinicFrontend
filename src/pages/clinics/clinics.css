@@ -1,0 +1,15 @@
+.poli-card { border-top: 4px solid var(--ink); }
+.poli-sign { display: flex; gap: 16px; align-items: center; min-height: 124px; }
+.poli-sign > div { min-width: 0; }
+.poli-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 54px;
+  height: 60px;
+  border-radius: 14px 14px 6px 6px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 26px;
+}
+.poli-label { color: var(--ink); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.poli-sign h3 { margin: 5px 0 0; line-height: 1.3; }

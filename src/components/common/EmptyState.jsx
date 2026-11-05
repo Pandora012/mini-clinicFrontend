@@ -1,4 +1,4 @@
-const EmptyState = ({ message = 'No data found', icon = 'bi-inbox' }) => {
+const EmptyState = ({ message = 'Belum ada data.', icon = 'bi-inbox' }) => {
   return (
     <div className="text-center py-5">
       <i className={`bi ${icon} display-4 text-muted`}></i>

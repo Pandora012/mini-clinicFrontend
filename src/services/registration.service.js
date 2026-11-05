@@ -1,7 +1,7 @@
 import api from './api';
 
 export const registrationService = {
-  getAll: (params) => api.get('/registrations', { params }),
+  getAll: (params, signal) => api.get('/registrations', { params, signal }),
   getById: (id) => api.get(`/registrations/${id}`),
   create: (data) => api.post('/registrations', data),
   update: (id, data) => api.put(`/registrations/${id}`, data),

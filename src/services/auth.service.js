@@ -10,6 +10,8 @@ export const authService = {
     return response.data;
   },
 
+  getProfile: () => api.get('/auth/profile'),
+
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -17,7 +19,7 @@ export const authService = {
 
   getUser: () => {
     const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    try { return user ? JSON.parse(user) : null; } catch { return null; }
   },
 
   getToken: () => {
